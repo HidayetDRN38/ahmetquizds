@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Şık Kuzen Quiz</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: #f0f0f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+  }
+  h1 {
+    margin-top: 20px;
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+  }
+  .container {
+    max-width: 480px;
+    width: 100%;
+    background: #1f2937;
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    padding: 20px 30px;
+    margin-top: 20px;
+  }
+  button {
+    cursor: pointer;
+    background: #3b82f6;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(59,130,246,0.4);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    user-select: none;
+  }
+  button:hover:not(:disabled) {
+    background: #2563eb;
+    transform: scale(1.05);
+  }
+  button:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+  }
+  #lives {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #ef4444;
+    user-select: none;
+  }
+  #question-text {
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+  #options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .option-btn {
+    background: #374151;
+    color: #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: inset 0 0 5px rgba(255,255,255,0.05);
+    transition: background-color 0.3s ease;
+    text-align: left;
+  }
+  .option-btn:hover {
+    background: #4b5563;
+  }
+  #start-screen {
+    text-align: center;
+    margin-top: 40px;
+  }
+  #start-screen button {
+    width: 180px;
+  }
+  #fail, #success {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-top: 40px;
+    color: #f87171;
+    text-align: center;
+  }
+  #success {
+    color: #34d399;
+  }
+  #surprise-box {
+    margin-top: 30px;
+    text-align: center;
+  }
+  #surprise-btn {
+    background: #f59e0b;
+    color: #1f2937;
+    font-weight: 700;
+    width: 140px;
+    box-shadow: 0 5px 12px rgba(245,158,11,0.7);
+    user-select: none;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+  .shake {
+    animation: shake 0.5s ease;
+  }
+  #surprise-link {
+    display: none;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fbbf24;
+    text-decoration: underline;
+  }
+  #surprise-link:hover {
+    color: #f59e0b;
+  }
+  #code-container {
+    display: none;
+    background: #111827;
+    margin-top: 25px;
+    padding: 15px;
+    border-radius: 12px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #d1d5db;
+    max-height: 220px;
+    overflow-y: auto;
+    user-select: all;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #show-code-btn {
+    margin-top: 15px;
+    background: #10b981;
+    width: 140px;
+    font-weight: 700;
+    color: #111827;
+    box-shadow: 0 5px 12px rgba(16,185,129,0.7);
+  }
+  @media (max-width: 520px) {
+    .container {
+      padding: 20px 15px;
+      border-radius: 12px;
+    }
+    button, .option-btn {
+      font-size: 1rem;
+      padding: 12px 16px;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Fotoğrafa ulaşmak için quiz!</h1>
+
+<div class="container" id="start-screen">
+  <button id="start-btn">Başla</button>
+</div>
+
+<div class="container" id="quiz-container" style="display:none;">
+  <div id="lives">Can: ❤️❤️❤️❤️❤️</div>
+  <div id="question-text"></div>
+  <div id="options"></div>
+</div>
+
+<div class="container" id="fail" style="display:none; color:#ef4444; font-weight:700; font-size:1.4rem;">
+  Artık fav kuzenim değilsin 😢
+</div>
+
+<div class="container" id="success" style="display:none; color:#34d399; font-weight:700; font-size:1.4rem;">
+  🎉 Kazandın! Fotoğraf sürprizini alabilirsin.
+  <br /><br />
+  <div id="surprise-box">
+    <button id="surprise-btn">Sürpriz Kutusu 🎁</button>
+    <div id="surprise-link">
+      <a href="https://r.resimlink.com/9Puqswv.png" target="_blank" style="color:#fbbf24; font-weight:700;">Fotoğrafı görmek için tıkla</a>
+    </div>
+  </div>
+
+  <button id="show-code-btn">Kodumu Göster</button>
+  <pre id="code-container">
+// İşte basit quiz kodum, istediğin gibi kullanabilirsin.
+// Kuzenim için hazır, kolayca kopyala!
+
+const questions = [
+  {
+    q: "Doğum tarihim ne?",
+    options: ["5 Şubat 2009", "3 Mart 2009", "8 Şubat 2009", "9 Şubat 2009"],
+    correct: 3
+  },
+  {
+    q: "Favori Marvel karakterim kim?",
+    options: ["Iron Man", "Captain America", "Spider-Man", "Loki"],
+    correct: 0
+  },
+  {
+    q: "En sonki vlogdaki tatlıda neyi çok yanlış yaptık?",
+    options: ["Şekeri az kattık", "Şeker yerine tuz koyduk", "Bisküviyi almayı unuttuk", "Tencerede dibi tuttu"],
+    correct: 0
+  },
+  {
+    q: "CS2'de kim daha iyi?",
+    options: ["Hidayet", "Ahmet", "Abin", "Emirhan"],
+    correct: 0
+  },
+  {
+    q: "Babaannemin yaptığı tatlı?",
+    options: ["Aside", "Sarma", "Revani", "Sütlaç"],
+    correct: 0
+  }
+];
+
+// Basit puan ve can mekanizması
+let currentQuestion = 0;
+let lives = 5;
+
+// Diğer fonksiyonlar buraya eklenecek...
+
+</pre>
+</div>
+
+<script>
+  const questions = [
+    {
+      q: "Doğum tarihim ne?",
+      options: ["5 Şubat 2009", "3 Mart 2009", "8 Şubat 2009", "9 Şubat 2009"],
+      correct: 3
+    },
+    {
+      q: "Favori Marvel karakterim kim?",
+      options: ["Iron Man", "Captain America", "Spider-Man", "Loki"],
+      correct: 0
+    },
+    {
+      q: "En sonki vlogdaki tatlıda neyi çok yanlış yaptık?",
+      options: ["Şekeri az kattık", "Şeker yerine tuz koyduk", "Bisküviyi almayı unuttuk", "Tencerede dibi tuttu"],
+      correct: 0
+    },
+    {
+      q: "CS2'de kim daha iyi?",
+      options: ["Hidayet", "Ahmet", "Abin", "Emirhan"],
+      correct: 0
+    },
+    {
+      q: "Babaannemin yaptığı tatlı?",
+      options: ["Aside", "Sarma", "Revani", "Sütlaç"],
+      correct: 0
+    }
+  ];
+
+  let currentQuestion = 0;
+  let lives = 5;
+
+  const startBtn = document.getElementById('start-btn');
+  const startScreen = document.getElementById('start-screen');
+  const quizContainer = document.getElementById('quiz-container');
+  const livesEl = document.getElementById('lives');
+  const questionText = document.getElementById('question-text');
+  const optionsDiv = document.getElementById('options');
+  const failScreen = document.getElementById('fail');
+  const successScreen = document.getElementById('success');
+  const surpriseBtn = document.getElementById('surprise-btn');
+  const surpriseLink = document.getElementById('surprise-link');
+  const showCodeBtn = document.getElementById('show-code-btn');
+  const codeContainer = document.getElementById('code-container');
+
+  function shuffleArray(arr) {
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  startBtn.onclick = () => {
+    startScreen.style.display = 'none';
+    quizContainer.style.display = 'block';
+    currentQuestion = 0;
+    lives = 5;
+    updateLives();
+    showQuestion();
+  };
+
+  function updateLives(){
+    livesEl.textContent = "Can: " + "❤️".repeat(lives);
+  }
+
+  function showQuestion(){
+    questionText.textContent = questions[currentQuestion].q;
+    optionsDiv.innerHTML = "";
+
+    // Şıkları rastgele karıştır
+    const opts = questions[currentQuestion].options.map((opt, i) => ({opt, i}));
+    shuffleArray(opts);
+
+    opts.forEach(({opt, i}) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.onclick = () => checkAnswer(i);
+      optionsDiv.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(i){
+    if(i === questions[currentQuestion].correct){
+      currentQuestion++;
+      if(currentQuestion === questions.length){
+        quizContainer.style.display = 'none';
+        successScreen.style.display = 'block';
+      } else {
+        showQuestion();
+      }
+    } else {
+      lives--;
+      updateLives();
+      if(lives === 0){
+        quizContainer.style.display = 'none';
+        failScreen.style.display = 'block';
+      }
+    }
+  }
+
+  surpriseBtn.onclick = () => {
+    surpriseLink.style.display = 'block';
+    surpriseBtn.classList.add('shake');
+    setTimeout(() => surpriseBtn.classList.remove('shake'), 600);
+  }
+
+  showCodeBtn.onclick = () => {
+    if(codeContainer.style.display === 'none' || codeContainer.style.display === ''){
+      codeContainer.style.display = 'block';
+      showCodeBtn.textContent = 'Kodu Gizle';
+    } else {
+      codeContainer.style.display = 'none';
+      showCodeBtn.textContent = 'Kodumu Göster';
+    }
+  }
+</script>
+
+</body>
+</html>
